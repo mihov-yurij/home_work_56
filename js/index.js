@@ -1,27 +1,55 @@
-function asyncOperationDemo(callback) {
-  console.log("Перший виклик");
+/**
 
-  queueMicrotask(() => {
-    const op = "nextTick (microtask)";
-    console.log("Виконано nextTick");
-    callback(op);
-  });
+ * @param {Function} callback 
+ */
+export const asyncOperationDemo = (callback) => {
+  try {
+    if (typeof callback !== 'function') {
+      throw new Error('Callback должен быть функцией');
+    }
 
-   setTimeout(() => {
-    const op = "setTimeout";
-    console.log("Виконано setTimeout");
-    callback(op);
-  }, 0);
+    console.log("Перший виклик");
 
-  const setImmediatePolyfill = (cb) => setTimeout(cb, 0);
+    // 1. process.nextTick
+    process.nextTick(() => {
+      try {
+        const op = "nextTick";
+        console.log("Виконано nextTick");
+        callback(op);
+        console.log(`Завершено виконання: ${op}`);
+      } catch (err) {
+        console.error("Помилка в nextTick:", err.message);
+      }
+    });
 
-  setImmediatePolyfill(() => {
-    const op = "setImmediate";
-    console.log("Виконано setImmediate");
-    callback(op);
-  });
+    // 2. setTimeout
+    setTimeout(() => {
+      try {
+        const op = "setTimeout";
+        console.log("Виконано setTimeout");
+        callback(op);
+        console.log(`Завершено виконання: ${op}`);
+      } catch (err) {
+        console.error("Помилка в setTimeout:", err.message);
+      }
+    }, 0);
 
-  console.log("Останній виклик");
-}
+    // 3. setImmediate
+    setImmediate(() => {
+      try {
+        const op = "setImmediate";
+        console.log("Виконано setImmediate");
+        callback(op);
+        console.log(`Завершено виконання: ${op}`);
+      } catch (err) {
+        console.error("Помилка в setImmediate:", err.message);
+      }
+    });
 
-export { asyncOperationDemo };
+    console.log("Останній виклик");
+  } catch (error) {
+    console.error("Помилка:", error.message);
+  }
+};
+
+
