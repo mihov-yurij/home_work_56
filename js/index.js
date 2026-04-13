@@ -1,49 +1,39 @@
-/**
-
- * @param {Function} callback 
- */
-export const asyncOperationDemo = (callback) => {
+export const asyncOperationDemo = async (callback) => {
   try {
-    if (typeof callback !== 'function') {
-      throw new Error('Callback должен быть функцией');
-    }
+    if (typeof callback !== 'function') throw new Error('Callback must be a function');
 
     console.log("Перший виклик");
 
-    // 1. process.nextTick
-    process.nextTick(() => {
-      try {
+    // Используем промис, чтобы подождать выполнения nextTick
+    await new Promise((resolve) => {
+      process.nextTick(() => {
         const op = "nextTick";
         console.log("Виконано nextTick");
         callback(op);
         console.log(`Завершено виконання: ${op}`);
-      } catch (err) {
-        console.error("Помилка в nextTick:", err.message);
-      }
+        resolve();
+      });
     });
 
-    // 2. setTimeout
+    // После завершения nextTick выполняем Promise
+    const opPromise = "Promise";
+    console.log(`Виконано ${opPromise}`);
+    callback(opPromise);
+    console.log(`Завершено виконання: ${opPromise}`);
+
+    // Макрозадачи отправляем в очередь
     setTimeout(() => {
-      try {
-        const op = "setTimeout";
-        console.log("Виконано setTimeout");
-        callback(op);
-        console.log(`Завершено виконання: ${op}`);
-      } catch (err) {
-        console.error("Помилка в setTimeout:", err.message);
-      }
+      const op = "setTimeout";
+      console.log("Виконано setTimeout");
+      callback(op);
+      console.log(`Завершено виконання: ${op}`);
     }, 0);
 
-    // 3. setImmediate
     setImmediate(() => {
-      try {
-        const op = "setImmediate";
-        console.log("Виконано setImmediate");
-        callback(op);
-        console.log(`Завершено виконання: ${op}`);
-      } catch (err) {
-        console.error("Помилка в setImmediate:", err.message);
-      }
+      const op = "setImmediate";
+      console.log("Виконано setImmediate");
+      callback(op);
+      console.log(`Завершено виконання: ${op}`);
     });
 
     console.log("Останній виклик");
